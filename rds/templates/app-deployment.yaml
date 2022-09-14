@@ -4,6 +4,7 @@ metadata:
   name: {{ include "rds.fullname" . }}-app
   labels:
     {{- include "rds.labels" . | nindent 4 }}
+    rds-provider: aws
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
