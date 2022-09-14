@@ -1,0 +1,15 @@
+apiVersion: servicebinding.io/v1alpha3
+kind: ServiceBinding
+metadata:
+  name: servicebinding-s3-demo
+spec:
+  service:
+    apiVersion: s3.services.k8s.aws/v1alpha1
+    kind: Bucket
+    name: gitops-ack-bucket
+  workload:
+    selector:
+      matchLabels:
+        s3-provider: aws
+    apiVersion: apps/v1
+    kind: Deployment

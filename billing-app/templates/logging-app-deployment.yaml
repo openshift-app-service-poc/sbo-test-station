@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "rds.fullname" . }}-app
+  name: {{ include "rds.fullname" . }}-logging-app
   labels:
     {{- include "rds.labels" . | nindent 4 }}
-    rds-provider: aws
+    s3-provider: aws
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
