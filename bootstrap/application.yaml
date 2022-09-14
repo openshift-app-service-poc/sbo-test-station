@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:                                                                              
+  name: rds                                                                            
+  namespace: openshift-gitops                                                          
+spec:                                                                                  
+  destination:                                                                         
+    namespace: rds                                                                     
+    server: https://kubernetes.default.svc                                             
+  project: default                                                                     
+  source:                                                                              
+    helm:                                                                              
+      valueFiles:                                                                      
+      - values-test.yaml                                                               
+    path: rds                                                                          
+    repoURL: https://github.com/openshift-app-service-poc/sbo-test-station.git         
+    targetRevision: HEAD 
