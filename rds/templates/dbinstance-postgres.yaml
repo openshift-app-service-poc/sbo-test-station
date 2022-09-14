@@ -1,0 +1,23 @@
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: {{ .Values.dbinstance.name }}
+  annotations:
+    "service.binding/type": "path={.spec.engine}"
+    "service.binding/provider": "aws"
+    "service.binding/host": "path={.status.endpoint.address}"
+    "service.binding/port": "path={.status.endpoint.port}"
+    "service.binding/username": "path={.spec.masterUsername}"
+    "service.binding/password": 'path={.spec.masterUserPassword.name},objectType=Secret,sourceKey=password'
+    "service.binding/database": "path={.spec.engine}"
+spec:
+  allocatedStorage: {{ .Values.dbinstance.allocatedStorage }}
+  dbInstanceClass: {{ .Values.dbinstance.dbInstanceClass }}
+  dbInstanceIdentifier: {{ .Values.dbinstance.name }}
+  engine: {{ .Values.dbinstance.engine }}
+  engineVersion: "{{ .Values.dbinstance.engineVersion }}"
+  masterUsername: {{ .Values.dbcreds.username }}
+  masterUserPassword:
+    namespace: {{ .Release.Namespace }}
+    name: {{ .Values.dbcreds.name }}
+    key: password

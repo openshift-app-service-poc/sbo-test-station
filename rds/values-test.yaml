@@ -87,3 +87,17 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+dbinstance:
+  allocatedStorage: 20
+  dbInstanceClass: db.t3.micro
+  engine: postgres
+  engineVersion: 14
+  name: rds-test-demo
+
+# db-cred-helm.yaml
+
+dbcreds:
+  name: rds-database-creds-demo
+  username: mstr
+  password: secret123
