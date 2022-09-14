@@ -10,6 +10,13 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+app:
+  image:
+    repository: quay.io/ansadler/argocd-workload
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "0.1"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
