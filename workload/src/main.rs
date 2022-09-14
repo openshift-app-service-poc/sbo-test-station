@@ -17,7 +17,7 @@ async fn main() -> Result<()> {
     let filter = EnvFilter::from_default_env();
     let subscriber = FmtSubscriber::builder()
         .with_env_filter(filter)
-        .with_max_level(Level::DEBUG)
+        .with_max_level(Level::INFO)
         .finish();
 
     tracing::subscriber::set_global_default(subscriber)?;
