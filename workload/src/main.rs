@@ -1,15 +1,12 @@
 use std::collections::HashMap;
 
-use axum::{
-    http::StatusCode,
-    response::IntoResponse,
-    routing::get,
-    Json, Router,
-};
+use axum::{http::StatusCode, response::IntoResponse, routing::get, Json, Router};
 use color_eyre::eyre::Result;
 use serde::Serialize;
-use tracing::{debug, info, instrument, warn, Level};
+use tracing::{debug, error, info, instrument, Level};
 use tracing_subscriber::{EnvFilter, FmtSubscriber};
+
+static TEST_ENDPOINTS: [&str; 3] = ["/smoke", "/regression", "/stress"];
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -22,15 +19,23 @@ async fn main() -> Result<()> {
 
     tracing::subscriber::set_global_default(subscriber)?;
 
-    let app = Router::new()
+    let mut app = Router::new()
         // `GET /` just prints "hello, world!"
         .route("/", get(root))
         .route("/healthz", get(health))
-        .route("/regression", get(health))
         .route("/bindings", get(bindings));
 
+    for endpoint in TEST_ENDPOINTS {
+        app = app.route(endpoint, get(health));
+    }
+
     let interface = &"0.0.0.0:8080".parse()?;
-    info!("Listening on {}", interface);
+    if let Ok(name) = std::env::var("APP_NAME") {
+        info!("{}: Listening on {}", name, interface)
+    } else {
+        info!("Listening on {}", interface)
+    }
+
     axum::Server::bind(interface)
         .serve(app.into_make_service())
         .await?;
@@ -45,7 +50,8 @@ async fn root() -> &'static str {
 #[instrument]
 async fn health() -> StatusCode {
     let result = get_bindings().await;
-    result.map(|_| StatusCode::OK)
+    result
+        .map(|_| StatusCode::OK)
         .unwrap_or_else(|_| StatusCode::INTERNAL_SERVER_ERROR)
 }
 
@@ -53,21 +59,18 @@ async fn health() -> StatusCode {
 async fn bindings() -> Result<impl IntoResponse, impl IntoResponse> {
     debug!("Retrieving service bindings");
     let result = get_bindings().await;
-    result
-        .map(|r| {
-            Json(r)
-        })
-        .map_err(|e| {
-            warn!("Unable to retrieve projected service bindings!");
-            (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
-        })
+    result.map(Json).map_err(|e| {
+        error!("Unable to retrieve projected service bindings!");
+        (StatusCode::INTERNAL_SERVER_ERROR, e.to_string())
+    })
 }
 
 static SERVICE_BINDING_ROOT: &str = "SERVICE_BINDING_ROOT";
 
 async fn get_bindings() -> Result<Vec<Binding>> {
-    let binding_root = std::env::var(SERVICE_BINDING_ROOT).unwrap_or_else(|_| "/bindings".to_string());
-    info!(binding_root, "reading from {}", binding_root);
+    let binding_root =
+        std::env::var(SERVICE_BINDING_ROOT).unwrap_or_else(|_| "/bindings".to_string());
+    debug!(binding_root, "reading from {}", binding_root);
     let mut dir_entries = tokio::fs::read_dir(binding_root).await?;
 
     let mut binding_entries = vec![];
@@ -86,6 +89,7 @@ async fn get_bindings() -> Result<Vec<Binding>> {
             let file_name = entry.file_name().to_string_lossy().into_owned();
             debug!("reading {}", file_name);
             if let Ok(data) = tokio::fs::read_to_string(entry.path()).await {
+                debug!("found binding {} with data {}", file_name, data);
                 binding_information.insert(file_name, data);
             }
         }
