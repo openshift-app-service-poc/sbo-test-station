@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: billing
+  namespace: openshift-gitops
+spec:
+  destination:
+    namespace: prod
+    server: https://kubernetes.default.svc
+  project: default
+  source:
+    helm:
+      valueFiles:
+      - values-prod.yaml
+    path: billing-app
+    repoURL: https://github.com/openshift-app-service-poc/sbo-test-station.git
+    targetRevision: HEAD
