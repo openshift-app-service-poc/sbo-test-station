@@ -2,5 +2,10 @@ apiVersion: s3.services.k8s.aws/v1alpha1
 kind: Bucket
 metadata:
   name: gitops-ack-bucket
+  annotations:
+    "service.binding/type": "s3"
+    "service.binding/provider": "aws"
+    "service.binding/name": "path={.spec.name}"
+    "service.binding/location": "path={.status.location}"
 spec:
   name: gitops-ack-bucket
