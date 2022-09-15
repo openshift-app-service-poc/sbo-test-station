@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "rds.labels" . | nindent 4 }}
     s3-provider: aws
+    app: logging
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}

@@ -6,6 +6,7 @@ metadata:
     {{- include "rds.labels" . | nindent 4 }}
     rds-provider: aws
     redis-provider: aws
+    app: auth
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
