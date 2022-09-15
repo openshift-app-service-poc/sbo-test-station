@@ -15,6 +15,7 @@ spec:
   selector:
     matchLabels:
       {{- include "rds.selectorLabels" . | nindent 6 }}
+      app: billing
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -23,6 +24,7 @@ spec:
       {{- end }}
       labels:
         {{- include "rds.selectorLabels" . | nindent 8 }}
+        app: billing
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
