@@ -6,7 +6,7 @@ spec:
   service:
     apiVersion: rds.services.k8s.aws/v1alpha1
     kind: DBInstance
-    name: rds-test-demo
+    name: {{ .Values.dbinstance.name }}
   workload:
     selector:
       matchLabels:

@@ -6,7 +6,7 @@ spec:
   service:
     apiVersion: s3.services.k8s.aws/v1alpha1
     kind: Bucket
-    name: gitops-ack-bucket
+    name: {{ .Values.s3.name }}
   workload:
     selector:
       matchLabels:
