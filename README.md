@@ -1,2 +1,2 @@
-# sbo-test-station
-SBO DevTools Week Test station
+# sbo-argocd-pipelines
+SBO DevTools Week (SBO + ArgoCD + Pipelines)
