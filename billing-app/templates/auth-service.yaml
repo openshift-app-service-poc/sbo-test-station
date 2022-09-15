@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "rds.fullname" . }}
+  name: {{ include "rds.fullname" . }}-auth-svc
   labels:
     {{- include "rds.labels" . | nindent 4 }}
 spec:
