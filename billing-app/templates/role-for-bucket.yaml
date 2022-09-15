@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: bucket-read-access-for-service-binding
+  name: {{ include "rds.fullname" . }}-bucket-read-access
   labels:
     servicebinding.io/controller: "true"
 rules:

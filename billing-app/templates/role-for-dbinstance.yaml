@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: backingservice-read-access-for-service-binding
+  name: {{ include "rds.fullname" . }}-dbinstance-read-access
   labels:
     servicebinding.io/controller: "true"
 rules:
