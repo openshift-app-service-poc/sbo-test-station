@@ -1,0 +1,10 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: bucket-read-access-for-service-binding
+  labels:
+    servicebinding.io/controller: "true"
+rules:
+  - apiGroups: ["s3.services.k8s.aws"]
+    resources: ["buckets", "buckets/status"]
+    verbs: ["get", "list", "watch"]
