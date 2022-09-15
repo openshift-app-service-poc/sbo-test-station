@@ -13,5 +13,5 @@ spec:
       valueFiles:
       - values-stage.yaml
     path: billing-app
-    repoURL: https://github.com/openshift-app-service-poc/sbo-test-station.git
+    repoURL: https://github.com/openshift-app-service-poc/sbo-stage-station.git
     targetRevision: HEAD
