@@ -8,4 +8,4 @@ metadata:
     "service.binding/name": "path={.spec.name}"
     "service.binding/location": "path={.status.location}"
 spec:
-  name: gitops-ack-bucket
+  name: {{ .Values.s3.name }}
