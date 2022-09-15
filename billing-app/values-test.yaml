@@ -101,3 +101,6 @@ dbcreds:
   name: rds-database-creds-demo
   username: mstr
   password: secret123
+
+s3:
+  name: gitops-ack-bucket

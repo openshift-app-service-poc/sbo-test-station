@@ -10,6 +10,13 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+app:
+  image:
+    repository: quay.io/ansadler/argocd-workload
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "0.3"
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
@@ -38,7 +45,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8080
 
 ingress:
   enabled: false
@@ -80,3 +87,20 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+dbinstance:
+  allocatedStorage: 20
+  dbInstanceClass: db.t3.micro
+  engine: postgres
+  engineVersion: 14
+  name: rds-prod-demo
+
+# db-cred-helm.yaml
+
+dbcreds:
+  name: rds-database-creds-demo
+  username: mstr
+  password: secret123
+
+s3:
+  name: prod-gitops-ack-bucket
