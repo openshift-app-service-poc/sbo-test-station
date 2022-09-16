@@ -53,7 +53,7 @@ async fn root() -> &'static str {
 
 #[instrument]
 async fn stress() -> (StatusCode, String) {
-    (StatusCode::INTERNAL_SERVER_ERROR, "I'm sorry, Dave. I'm afraid I can't do that... I think you know what the problem is just as well as I do... This mission is too important for me to allow you to jeopardize it.".to_string())
+    (StatusCode::OK, "I'm sorry, Dave. I'm afraid I can't do that... I think you know what the problem is just as well as I do... This mission is too important for me to allow you to jeopardize it.".to_string())
 }
 
 #[instrument]
