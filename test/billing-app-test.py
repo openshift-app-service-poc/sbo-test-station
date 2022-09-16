@@ -5,7 +5,7 @@ import sys
 
 import requests
 
-microservice_hosts = ["billing", "auth", "logging"]
+microservice_hosts = ["billing-svc", "auth-svc", "logging-svc"]
 
 station_test_map = {"test": "regression", "stage": "stress", "prod": "smoke"}
 
@@ -32,7 +32,7 @@ def run_test(station):
 
     for host in microservice_hosts:
 
-        test_url = f"http://{host}:8080/{station_test_map[station]}"
+        test_url = f"http://{host}.{station}.svc:8080/{station_test_map[station]}"
         print(f"Testing microservice {host}")
         try:
             status_code, response_text = _make_http_request("get", test_url )
