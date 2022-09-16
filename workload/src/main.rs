@@ -26,7 +26,11 @@ async fn main() -> Result<()> {
         .route("/bindings", get(bindings));
 
     for endpoint in TEST_ENDPOINTS {
-        app = app.route(endpoint, get(health));
+        if endpoint = "/stress" { 
+            app = app.route(endpoint, get(stress));
+        } else {
+            app = app.route(endpoint, get(health));
+        }
     }
 
     let interface = &"0.0.0.0:8080".parse()?;
@@ -45,6 +49,11 @@ async fn main() -> Result<()> {
 #[instrument]
 async fn root() -> &'static str {
     "Hello, World!\n"
+}
+
+#[instrument]
+async fn stress() -> (StatusCode, String) {
+    (StatusCode::INTERNAL_SERVER_ERROR, "I'm sorry, Dave. I'm afraid I can't do that... I think you know what the problem is just as well as I do... This mission is too important for me to allow you to jeopardize it.")
 }
 
 #[instrument]
