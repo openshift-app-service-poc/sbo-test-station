@@ -1,7 +1,7 @@
 FROM rust:1.63 as builder
 WORKDIR /usr/src/application
 
-COPY Cargo.lock Cargo.toml .
+COPY Cargo.lock Cargo.toml ./
 RUN mkdir src && touch src/lib.rs && cargo build --release && rm -rf src
 
 COPY . .
