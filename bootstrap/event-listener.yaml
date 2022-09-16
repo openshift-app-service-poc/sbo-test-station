@@ -1,0 +1,34 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: EventListener
+metadata:
+  name: github-push
+  namespace: dtw-pipeline
+spec:
+  namespaceSelector: {}
+  resources: {}
+  serviceAccountName: pipeline
+  triggers:
+    - bindings:
+        - kind: TriggerBinding
+          ref: github-push
+      interceptors:
+        - params:
+            - name: secretRef
+              value:
+                secretKey: secret
+                secretName: ci-webhook
+            - name: eventTypes
+              value:
+                - push
+          ref:
+            kind: ClusterInterceptor
+            name: github
+        - params:
+            - name: filter
+              value: body.ref == 'refs/heads/main'
+          ref:
+            kind: ClusterInterceptor
+            name: cel
+      name: github-push
+      template:
+        ref: github-push
