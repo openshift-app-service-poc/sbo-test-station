@@ -1,0 +1,191 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: sbo-gitops
+  namespace: dtw-pipeline
+spec:
+  params:
+    - default: 'https://github.com/openshift-app-service-poc/sbo-test-station.git'
+      name: git-repo-url
+      type: string
+    - default: main
+      name: git-repo-revision
+      type: string
+  tasks:
+    - name: git-setup
+      params:
+        - name: BASE_IMAGE
+          value: >-
+            docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
+        - name: GIT_SCRIPT
+          value: >
+            rm -rf .git *
+
+            git clone $(params.git-repo-url) .
+
+            git checkout $(params.git-repo-revision)
+
+            git remote add stage
+            git@github.com:openshift-app-service-poc/sbo-stage-station.git
+
+            git remote add prod
+            git@github.com:openshift-app-service-poc/sbo-prod-station.git
+
+            git fetch --all
+        - name: USER_HOME
+          value: /root
+        - name: VERBOSE
+          value: 'true'
+        - name: GIT_USER_NAME
+          value: SBO GitOps
+        - name: GIT_USER_EMAIL
+          value: pmacik+sbo-gitops@redhat.com
+      taskRef:
+        kind: ClusterTask
+        name: git-cli
+      workspaces:
+        - name: source
+          workspace: sources
+        - name: ssh-directory
+          workspace: ssh-directory
+    - name: sync-app-test
+      params:
+        - name: application-name
+          value: billing
+        - name: revision
+          value: $(params.git-repo-revision)
+        - name: flags
+          value: '--'
+        - name: argocd-version
+          value: v2.4.11
+      runAfter:
+        - git-setup
+      taskRef:
+        kind: ClusterTask
+        name: argocd-task-sync-and-wait
+    - name: test-test
+      params:
+        - name: station
+          value: test
+      runAfter:
+        - sync-app-test
+      taskRef:
+        kind: Task
+        name: run-tests
+      workspaces:
+        - name: sources
+          workspace: sources
+    - name: push-test-to-stage
+      params:
+        - name: BASE_IMAGE
+          value: >-
+            docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
+        - name: GIT_SCRIPT
+          value: |
+            git push -f --verbose stage main
+        - name: USER_HOME
+          value: /root
+        - name: VERBOSE
+          value: 'true'
+        - name: GIT_USER_NAME
+          value: SBO GitOps
+        - name: GIT_USER_EMAIL
+          value: pmacik+sbo-gitops@redhat.com
+      runAfter:
+        - test-test
+      taskRef:
+        kind: ClusterTask
+        name: git-cli
+      workspaces:
+        - name: source
+          workspace: sources
+        - name: ssh-directory
+          workspace: ssh-directory
+    - name: sync-app-stage
+      params:
+        - name: application-name
+          value: billing-stage
+        - name: revision
+          value: $(params.git-repo-revision)
+        - name: flags
+          value: '--'
+        - name: argocd-version
+          value: v2.4.11
+      runAfter:
+        - push-test-to-stage
+      taskRef:
+        kind: ClusterTask
+        name: argocd-task-sync-and-wait
+    - name: test-stage
+      params:
+        - name: station
+          value: stage
+      runAfter:
+        - sync-app-stage
+      taskRef:
+        kind: Task
+        name: run-tests
+      workspaces:
+        - name: sources
+          workspace: sources
+    - name: push-stage-to-prod
+      params:
+        - name: BASE_IMAGE
+          value: >-
+            docker.io/alpine/git:v2.26.2@sha256:23618034b0be9205d9cc0846eb711b12ba4c9b468efdd8a59aac1d7b1a23363f
+        - name: GIT_SCRIPT
+          value: |
+            git push -f --verbose prod main
+        - name: USER_HOME
+          value: /root
+        - name: VERBOSE
+          value: 'true'
+        - name: GIT_USER_NAME
+          value: SBO GitOps
+        - name: GIT_USER_EMAIL
+          value: pmacik+sbo-gitops@redhat.com
+      runAfter:
+        - test-stage
+      taskRef:
+        kind: ClusterTask
+        name: git-cli
+      workspaces:
+        - name: source
+          workspace: sources
+        - name: ssh-directory
+          workspace: ssh-directory
+    - name: sync-app-prod
+      params:
+        - name: application-name
+          value: billing-prod
+        - name: revision
+          value: $(params.git-repo-revision)
+        - name: flags
+          value: '--'
+        - name: argocd-version
+          value: v2.4.11
+      runAfter:
+        - push-stage-to-prod
+      taskRef:
+        kind: ClusterTask
+        name: argocd-task-sync-and-wait
+    - name: verify-prod
+      params:
+        - name: station
+          value: prod
+      runAfter:
+        - sync-app-prod
+      taskRef:
+        kind: Task
+        name: run-tests
+      workspaces:
+        - name: sources
+          workspace: sources
+  workspaces:
+    - name: sources
+      optional: false
+    - name: ssh-directory
+      optional: false
+  resources: []
+  finally: []
+
