@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: run-tests
+  namespace: dtw-pipeline
+spec:
+  params:
+    - name: station
+      type: string
+  steps:
+    - command:
+        - ./billing-app-test.py
+        - $(inputs.params.station)
+      image: 'quay.io/dperaza/sbo-devtools-test:0.0.2'
+      imagePullPolicy: Always
+      name: run-tests
+      resources: {}
+  workspaces:
+    - mountPath: /sources
+      name: sources
+
