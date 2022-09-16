@@ -12,10 +12,10 @@ image:
 
 app:
   image:
-    repository: quay.io/ansadler/argocd-workload
+    repository: quay.io/pmacik/argocd-workload
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "0.3"
+    tag: "stress-at-stage"
 
 imagePullSecrets: []
 nameOverride: ""
